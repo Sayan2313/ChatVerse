@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "846396213702",
+    "project_id": "newchatapp-26040",
+    "storage_bucket": "newchatapp-26040.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846396213702:android:ebcfa3fdf69297ddda4ac7",
+        "android_client_info": {
+          "package_name": "com.example.chatverse"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "846396213702-5muu8cjr9144j3f6gh6gmfigevectu7r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.chatverse",
+            "certificate_hash": "162833c474bafdf2cba938d5b13c8c2ed11bd639"
+          }
+        },
+        {
+          "client_id": "846396213702-jm5e2dosdp2si70foiekrr9d1aujjrce.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2KUwxO7oRI9iWPaVK1uWr1PROnoCiops"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "846396213702-jm5e2dosdp2si70foiekrr9d1aujjrce.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -17,6 +17,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.chatverse.screens.ChatScreen
 import com.example.chatverse.screens.InboxScreen
+import com.example.chatverse.screens.LoginScreen
+import com.example.chatverse.screens.SignUpScreen
 import com.example.chatverse.screens.WelcomeScreen
 import com.example.chatverse.ui.theme.ChatVerseTheme
 
@@ -25,22 +27,28 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Surface(
+            ChatVerseTheme {
+                Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     ChatApp()
                 }
+            }
         }
     }
 }
+
 private sealed class Route(val path: String) {
     data object Welcome : Route("welcome")
+    data object Login : Route("login")
+    data object SignUp : Route("signup")
     data object Inbox : Route("inbox")
     data object Chat : Route("chat/{chatId}") {
         fun build(chatId: String) = "chat/$chatId"
     }
 }
+
 @Preview
 @Composable
 fun ChatApp() {
@@ -52,27 +60,47 @@ fun ChatApp() {
     ) {
         composable(Route.Welcome.path) {
             WelcomeScreen(
-                onGetStarted = { nav.navigate(Route.Inbox.path) }
+                onGetStarted = { nav.navigate(Route.Login.path) }
+            )
+        }
+        composable(Route.Login.path) {
+            LoginScreen(
+                onLoginSuccess = {
+                    nav.navigate(Route.Inbox.path) {
+                        popUpTo(Route.Welcome.path) { inclusive = true }
+                    }
+                },
+                onNavigateToSignUp = {
+                    nav.navigate(Route.SignUp.path)
+                }
+            )
+        }
+        composable(Route.SignUp.path) {
+            SignUpScreen(
+                onSignUpSuccess = {
+                    nav.navigate(Route.Inbox.path) {
+                        popUpTo(Route.Welcome.path) { inclusive = true }
+                    }
+                },
+                onNavigateToLogin = {
+                    nav.navigate(Route.Login.path)
+                }
             )
         }
         composable(Route.Inbox.path) {
-            ChatVerseTheme {
-                InboxScreen(
-                    onOpenChat = { chatId -> nav.navigate(Route.Chat.build(chatId)) }
-                )
-            }
+            InboxScreen(
+                onOpenChat = { chatId -> nav.navigate(Route.Chat.build(chatId)) }
+            )
         }
         composable(
             route = Route.Chat.path,
             arguments = listOf(navArgument("chatId") { type = NavType.StringType })
         ) { entry ->
             val chatId = entry.arguments?.getString("chatId").orEmpty()
-            ChatVerseTheme {
-                ChatScreen(
-                    chatId = chatId,
-                    onBack = { nav.popBackStack() }
-                )
-            }
+            ChatScreen(
+                chatId = chatId,
+                onBack = { nav.popBackStack() }
+            )
         }
     }
 }
