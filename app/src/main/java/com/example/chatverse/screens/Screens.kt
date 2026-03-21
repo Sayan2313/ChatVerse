@@ -20,6 +20,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,6 +31,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -35,11 +40,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.chatverse.auth.AuthManager
-import com.example.chatverse.data.DemoData
 import com.example.chatverse.model.Models
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -137,11 +142,11 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(16.dp)
                 .clip(RoundedCornerShape(28.dp))
                 .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.9f))
                 .verticalScroll(scrollState)
-                .padding(24.dp),
+                .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -268,21 +273,23 @@ fun LoginScreen(
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
                             text = "G",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFF4285F4),
-                            modifier = Modifier.padding(bottom = 2.dp)
+                            color = Color(0xFF4285F4)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = "Sign in with Google",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1
+                            maxLines = 1,
+                            overflow = TextOverflow.Visible,
+                            softWrap = false
                         )
                     }
                 }
@@ -290,28 +297,21 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Don't have an account?",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "Sign Up",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.clickable { onNavigateToSignUp() },
-                    maxLines = 1
-                )
+            val annotatedString = buildAnnotatedString {
+                append("Don't have an account? ")
+                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)) {
+                    append("Sign Up")
+                }
             }
+            Text(
+                text = annotatedString,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.clickable { onNavigateToSignUp() },
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                softWrap = false
+            )
         }
     }
 }
@@ -350,11 +350,11 @@ fun SignUpScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(16.dp)
                 .clip(RoundedCornerShape(28.dp))
                 .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.9f))
                 .verticalScroll(scrollState)
-                .padding(24.dp),
+                .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -491,21 +491,23 @@ fun SignUpScreen(
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
                             text = "G",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Black,
-                            color = Color(0xFF4285F4),
-                            modifier = Modifier.padding(bottom = 2.dp)
+                            color = Color(0xFF4285F4)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = "Sign Up with Google",
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
-                            maxLines = 1
+                            maxLines = 1,
+                            overflow = TextOverflow.Visible,
+                            softWrap = false
                         )
                     }
                 }
@@ -513,28 +515,21 @@ fun SignUpScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Already have an account?",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "Sign In",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    ),
-                    modifier = Modifier.clickable { onNavigateToLogin() },
-                    maxLines = 1
-                )
+            val annotatedString = buildAnnotatedString {
+                append("Already have an account? ")
+                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)) {
+                    append("Sign In")
+                }
             }
+            Text(
+                text = annotatedString,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.clickable { onNavigateToLogin() },
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                softWrap = false
+            )
         }
     }
 }
@@ -543,9 +538,14 @@ fun SignUpScreen(
 @Composable
 fun InboxScreen(
     onOpenChat: (String) -> Unit,
+    onNavigateToProfile: () -> Unit
 ) {
-    val chats = remember { DemoData.chats }
+    val context = LocalContext.current
+    val authManager = remember { AuthManager(context) }
+    val chats by authManager.getChats().collectAsState(initial = emptyList())
     var showAddChatDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    var isAddingChat by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -557,6 +557,11 @@ fun InboxScreen(
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     ) 
+                },
+                actions = {
+                    IconButton(onClick = onNavigateToProfile) {
+                        Icon(Icons.Default.Person, contentDescription = "Profile")
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
@@ -571,7 +576,11 @@ fun InboxScreen(
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = CircleShape
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add chat")
+                if (isAddingChat) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
+                } else {
+                    Icon(Icons.Default.Add, contentDescription = "Add chat")
+                }
             }
         }
     ) { padding ->
@@ -614,8 +623,108 @@ fun InboxScreen(
                 onDismiss = { showAddChatDialog = false },
                 onAdd = { email ->
                     showAddChatDialog = false
+                    isAddingChat = true
+                    scope.launch {
+                        try {
+                            val chatId = authManager.addChatByEmail(email)
+                            onOpenChat(chatId)
+                        } catch (e: Exception) {
+                            android.util.Log.e("InboxScreen", "Error adding chat", e)
+                        } finally {
+                            isAddingChat = false
+                        }
+                    }
                 }
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProfileScreen(
+    onBack: () -> Unit,
+    onLogout: () -> Unit
+) {
+    val context = LocalContext.current
+    val authManager = remember { AuthManager(context) }
+    val user by authManager.getUserData().collectAsState(initial = null)
+    val scope = rememberCoroutineScope()
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Profile") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = null,
+                    modifier = Modifier.size(80.dp),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = user?.name ?: "Loading...",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = user?.email ?: "",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = {
+                    authManager.signOut()
+                    onLogout()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Default.Logout, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Logout")
+            }
         }
     }
 }
@@ -727,43 +836,25 @@ fun ChatScreen(
     chatId: String,
     onBack: () -> Unit
 ) {
-    val chatTitle = remember(chatId) {
-        DemoData.chats.firstOrNull { it.id == chatId }?.title ?: "Chat"
+    val context = LocalContext.current
+    val authManager = remember { AuthManager(context) }
+    val chats by authManager.getChats().collectAsState(initial = emptyList())
+    val messages by authManager.getMessages(chatId).collectAsState(initial = emptyList())
+    val scope = rememberCoroutineScope()
+    
+    val chatItem = remember(chatId, chats) {
+        chats.firstOrNull { it.id == chatId }
     }
+    
+    val chatTitle = chatItem?.title ?: "Chat"
 
-    val initial = remember(chatId) {
-        DemoData.messagesByChatId[chatId].orEmpty()
-    }
-
-    var messages by remember(chatId) { mutableStateOf(initial) }
     var input by remember { mutableStateOf("") }
-
     val listState = rememberLazyListState()
-
-    val formatter = remember {
-        SimpleDateFormat("h:mm a", Locale.getDefault())
-    }
 
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
-            listState.animateScrollToItem(0)
+            listState.animateScrollToItem(messages.size - 1)
         }
-    }
-
-    fun send() {
-        val text = input.trim()
-        if (text.isEmpty()) return
-
-        input = ""
-
-        val now = formatter.format(Date())
-
-        messages = messages + Models.Message(
-            id = "m_${messages.size + 1}",
-            text = text,
-            time = now,
-            fromMe = true
-        )
     }
 
     Scaffold(
@@ -821,7 +912,15 @@ fun ChatScreen(
             MessageComposer(
                 value = input,
                 onValueChange = { input = it },
-                onSend = { send() }
+                onSend = { 
+                    val text = input.trim()
+                    if (text.isNotEmpty()) {
+                        input = ""
+                        scope.launch {
+                            authManager.sendMessage(chatId, text)
+                        }
+                    }
+                }
             )
         }
     ) { padding ->
@@ -833,12 +932,11 @@ fun ChatScreen(
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
-                reverseLayout = true,
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(
-                    items = messages.reversed(),
+                    items = messages,
                     key = { it.id }
                 ) { msg ->
                     MessageBubble(msg)

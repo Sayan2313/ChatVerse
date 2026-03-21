@@ -18,6 +18,7 @@ import androidx.navigation.navArgument
 import com.example.chatverse.screens.ChatScreen
 import com.example.chatverse.screens.InboxScreen
 import com.example.chatverse.screens.LoginScreen
+import com.example.chatverse.screens.ProfileScreen
 import com.example.chatverse.screens.SignUpScreen
 import com.example.chatverse.screens.WelcomeScreen
 import com.example.chatverse.ui.theme.ChatVerseTheme
@@ -44,6 +45,7 @@ private sealed class Route(val path: String) {
     data object Login : Route("login")
     data object SignUp : Route("signup")
     data object Inbox : Route("inbox")
+    data object Profile : Route("profile")
     data object Chat : Route("chat/{chatId}") {
         fun build(chatId: String) = "chat/$chatId"
     }
@@ -89,7 +91,18 @@ fun ChatApp() {
         }
         composable(Route.Inbox.path) {
             InboxScreen(
-                onOpenChat = { chatId -> nav.navigate(Route.Chat.build(chatId)) }
+                onOpenChat = { chatId -> nav.navigate(Route.Chat.build(chatId)) },
+                onNavigateToProfile = { nav.navigate(Route.Profile.path) }
+            )
+        }
+        composable(Route.Profile.path) {
+            ProfileScreen(
+                onBack = { nav.popBackStack() },
+                onLogout = {
+                    nav.navigate(Route.Login.path) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             )
         }
         composable(
