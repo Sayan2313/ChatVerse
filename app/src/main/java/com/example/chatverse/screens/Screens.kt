@@ -1,7 +1,10 @@
 package com.example.chatverse.screens
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,22 +20,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.chatverse.auth.AuthManager
 import com.example.chatverse.model.Models
+import com.example.chatverse.ui.theme.AnimatedChatBackground
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -60,51 +68,136 @@ fun PreviewWelcome() {
 fun WelcomeScreen(
     onGetStarted: () -> Unit,
 ) {
-    val gradient = Brush.verticalGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.primary,
-            MaterialTheme.colorScheme.tertiary,
-            MaterialTheme.colorScheme.surface
-        )
+    val transition = rememberInfiniteTransition(label = "welcome")
+
+    // Pulsing glow behind logo
+    val pulseScale by transition.animateFloat(
+        initialValue = 0.90f, targetValue = 1.10f,
+        animationSpec = infiniteRepeatable(tween(2200, easing = FastOutSlowInEasing), RepeatMode.Reverse),
+        label = "pulse"
+    )
+    // Expanding ring alpha
+    val ringAlpha by transition.animateFloat(
+        initialValue = 0.55f, targetValue = 0f,
+        animationSpec = infiniteRepeatable(tween(2600, easing = LinearEasing), RepeatMode.Restart),
+        label = "ringA"
+    )
+    val ringRadius by transition.animateFloat(
+        initialValue = 0.75f, targetValue = 1.65f,
+        animationSpec = infiniteRepeatable(tween(2600, easing = LinearEasing), RepeatMode.Restart),
+        label = "ringR"
     )
 
-    Scaffold { padding ->
+    AnimatedChatBackground {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(gradient)
-                .padding(padding)
-                .padding(20.dp),
+                .statusBarsPadding()
+                .padding(horizontal = 32.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+
+            // ── Animated logo orb ──────────────────────────────────────────
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(150.dp)
+            ) {
+                // Expanding halo ring
+                Canvas(modifier = Modifier.size(150.dp)) {
+                    val cx = size.width / 2f
+                    val cy = size.height / 2f
+                    val base = size.width / 2.6f
+                    drawCircle(
+                        color = Color(0xFF7C4DFF).copy(alpha = ringAlpha),
+                        radius = base * ringRadius,
+                        center = Offset(cx, cy),
+                        style = Stroke(width = 3.5f)
+                    )
+                    drawCircle(
+                        color = Color(0xFF00E5FF).copy(alpha = ringAlpha * 0.4f),
+                        radius = base * ringRadius * 1.35f,
+                        center = Offset(cx, cy),
+                        style = Stroke(width = 2f)
+                    )
+                }
+                // Glowing orb
+                Box(
+                    modifier = Modifier
+                        .size((88 * pulseScale).dp)
+                        .clip(CircleShape)
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(Color(0xFFA07DFF), Color(0xFF5020D0))
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "CV",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color.White,
+                        fontWeight = FontWeight.Black,
+                        fontFamily = FontFamily.Default
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(36.dp))
+
+            // ── Gradient app name ──────────────────────────────────────────
+            Text(
+                text = "ChatVerse",
+                style = MaterialTheme.typography.displaySmall.copy(
+                    brush = Brush.linearGradient(
+                        colors = listOf(Color(0xFFB080FF), Color(0xFF00E5FF))
+                    )
+                ),
+                fontWeight = FontWeight.ExtraBold
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Text(
+                text = "Connect beyond boundaries.\nFast, secure messaging.",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color(0xFFB0B8D8),
+                textAlign = TextAlign.Center,
+                lineHeight = 26.sp
+            )
+
+            Spacer(modifier = Modifier.height(64.dp))
+
+            // ── Gradient CTA button ────────────────────────────────────────
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(Color(0xFF7C4DFF), Color(0xFF3D5AFE))
+                        )
+                    )
+                    .clickable(onClick = onGetStarted)
+                    .padding(vertical = 18.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "ChatVerse",
-                    style = MaterialTheme.typography.displaySmall,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontWeight = FontWeight.SemiBold,
-                )
-
-                Text(
-                    text = "Fast, simple messages.",
+                    text = "Get Started  →",
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.92f),
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-            Button(
-                onClick = onGetStarted,
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp)
-            ) {
-                Text("Get started")
-            }
+            Text(
+                text = "Your conversations, your universe.",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color(0xFF6B7494),
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
@@ -125,44 +218,36 @@ fun LoginScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val scrollState = rememberScrollState()
 
-    val gradient = Brush.linearGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.secondaryContainer,
-            MaterialTheme.colorScheme.tertiaryContainer,
-            MaterialTheme.colorScheme.surface
-        )
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(gradient),
-        contentAlignment = Alignment.Center
-    ) {
+    AnimatedChatBackground {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .align(Alignment.Center)
+                .padding(20.dp)
                 .clip(RoundedCornerShape(28.dp))
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.9f))
+                .background(Color(0x20FFFFFF))
+                .border(1.dp, Color(0x35FFFFFF), RoundedCornerShape(28.dp))
                 .verticalScroll(scrollState)
-                .padding(20.dp),
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = "Welcome Back",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    brush = Brush.linearGradient(
+                        colors = listOf(Color(0xFFB080FF), Color(0xFF00E5FF))
+                    )
+                ),
+                fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = "Sign in to continue your conversations",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color(0xFFB0B8D8),
                 textAlign = TextAlign.Center
             )
 
@@ -185,7 +270,16 @@ fun LoginScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                singleLine = true
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color(0xFFB0B8D8),
+                    focusedBorderColor = Color(0xFF7C4DFF),
+                    unfocusedBorderColor = Color(0x55FFFFFF),
+                    focusedLabelColor = Color(0xFF7C4DFF),
+                    unfocusedLabelColor = Color(0xFF9090B0),
+                    cursorColor = Color(0xFF7C4DFF)
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
@@ -198,13 +292,23 @@ fun LoginScreen(
                     IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
                         Icon(
                             imageVector = if (passwordVisibility) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                            contentDescription = "Toggle password visibility"
+                            contentDescription = "Toggle password visibility",
+                            tint = Color(0xFF9090B0)
                         )
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                singleLine = true
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color(0xFFB0B8D8),
+                    focusedBorderColor = Color(0xFF7C4DFF),
+                    unfocusedBorderColor = Color(0x55FFFFFF),
+                    focusedLabelColor = Color(0xFF7C4DFF),
+                    unfocusedLabelColor = Color(0xFF9090B0),
+                    cursorColor = Color(0xFF7C4DFF)
+                )
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -212,38 +316,43 @@ fun LoginScreen(
             if (isLoading) {
                 CircularProgressIndicator()
             } else {
-                Button(
-                    onClick = {
-                        isLoading = true
-                        errorMessage = null
-                        scope.launch {
-                            try {
-                                val result = authManager.signInWithEmail(email, password)
-                                if (result.user != null) {
-                                    onLoginSuccess()
-                                } else {
-                                    errorMessage = "Email sign in failed"
-                                }
-                            } catch (e: Exception) {
-                                errorMessage = e.localizedMessage ?: "An error occurred"
-                            } finally {
-                                isLoading = false
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(
+                            if (email.isNotBlank() && password.isNotBlank())
+                                Brush.linearGradient(listOf(Color(0xFF7C4DFF), Color(0xFF3D5AFE)))
+                            else
+                                Brush.linearGradient(listOf(Color(0x557C4DFF), Color(0x553D5AFE)))
+                        )
+                        .clickable(
+                            enabled = email.isNotBlank() && password.isNotBlank()
+                        ) {
+                            isLoading = true
+                            errorMessage = null
+                            scope.launch {
+                                try {
+                                    val result = authManager.signInWithEmail(email, password)
+                                    if (result.user != null) onLoginSuccess()
+                                    else errorMessage = "Email sign in failed"
+                                } catch (e: Exception) {
+                                    errorMessage = e.localizedMessage ?: "An error occurred"
+                                } finally { isLoading = false }
                             }
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    enabled = email.isNotBlank() && password.isNotBlank()
+                        .padding(vertical = 16.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Sign in with Email")
+                    Text("Sign in with Email", color = Color.White, fontWeight = FontWeight.Bold)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "OR",
+                    text = "── OR ──",
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color(0xFF6B7494),
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
 
@@ -299,14 +408,14 @@ fun LoginScreen(
 
             val annotatedString = buildAnnotatedString {
                 append("Don't have an account? ")
-                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)) {
+                withStyle(style = SpanStyle(color = Color(0xFFB080FF), fontWeight = FontWeight.Bold)) {
                     append("Sign Up")
                 }
             }
             Text(
                 text = annotatedString,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color(0xFFB0B8D8),
                 modifier = Modifier.clickable { onNavigateToSignUp() },
                 textAlign = TextAlign.Center,
                 maxLines = 1,
@@ -315,6 +424,7 @@ fun LoginScreen(
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -333,44 +443,36 @@ fun SignUpScreen(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val scrollState = rememberScrollState()
 
-    val gradient = Brush.linearGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.secondaryContainer,
-            MaterialTheme.colorScheme.tertiaryContainer,
-            MaterialTheme.colorScheme.surface
-        )
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(gradient),
-        contentAlignment = Alignment.Center
-    ) {
+    AnimatedChatBackground {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .align(Alignment.Center)
+                .padding(20.dp)
                 .clip(RoundedCornerShape(28.dp))
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.9f))
+                .background(Color(0x20FFFFFF))
+                .border(1.dp, Color(0x35FFFFFF), RoundedCornerShape(28.dp))
                 .verticalScroll(scrollState)
-                .padding(20.dp),
+                .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = "Create Account",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                style = MaterialTheme.typography.headlineLarge.copy(
+                    brush = Brush.linearGradient(
+                        colors = listOf(Color(0xFFE040FB), Color(0xFF7C4DFF))
+                    )
+                ),
+                fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = "Join ChatVerse and start chatting!",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color(0xFFB0B8D8),
                 textAlign = TextAlign.Center
             )
 
@@ -393,7 +495,16 @@ fun SignUpScreen(
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                singleLine = true
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color(0xFFB0B8D8),
+                    focusedBorderColor = Color(0xFFE040FB),
+                    unfocusedBorderColor = Color(0x55FFFFFF),
+                    focusedLabelColor = Color(0xFFE040FB),
+                    unfocusedLabelColor = Color(0xFF9090B0),
+                    cursorColor = Color(0xFFE040FB)
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
@@ -403,7 +514,16 @@ fun SignUpScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                singleLine = true
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color(0xFFB0B8D8),
+                    focusedBorderColor = Color(0xFFE040FB),
+                    unfocusedBorderColor = Color(0x55FFFFFF),
+                    focusedLabelColor = Color(0xFFE040FB),
+                    unfocusedLabelColor = Color(0xFF9090B0),
+                    cursorColor = Color(0xFFE040FB)
+                )
             )
             Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
@@ -416,13 +536,23 @@ fun SignUpScreen(
                     IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
                         Icon(
                             imageVector = if (passwordVisibility) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                            contentDescription = "Toggle password visibility"
+                            contentDescription = "Toggle password visibility",
+                            tint = Color(0xFF9090B0)
                         )
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                singleLine = true
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color(0xFFB0B8D8),
+                    focusedBorderColor = Color(0xFFE040FB),
+                    unfocusedBorderColor = Color(0x55FFFFFF),
+                    focusedLabelColor = Color(0xFFE040FB),
+                    unfocusedLabelColor = Color(0xFF9090B0),
+                    cursorColor = Color(0xFFE040FB)
+                )
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -430,38 +560,43 @@ fun SignUpScreen(
             if (isLoading) {
                 CircularProgressIndicator()
             } else {
-                Button(
-                    onClick = {
-                        isLoading = true
-                        errorMessage = null
-                        scope.launch {
-                            try {
-                                val result = authManager.signUpWithEmail(email, password, name)
-                                if (result.user != null) {
-                                    onSignUpSuccess()
-                                } else {
-                                    errorMessage = "Email sign up failed"
-                                }
-                            } catch (e: Exception) {
-                                errorMessage = e.localizedMessage ?: "An error occurred"
-                            } finally {
-                                isLoading = false
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(
+                            if (name.isNotBlank() && email.isNotBlank() && password.isNotBlank() && password.length >= 6)
+                                Brush.linearGradient(listOf(Color(0xFFE040FB), Color(0xFF7C4DFF)))
+                            else
+                                Brush.linearGradient(listOf(Color(0x55E040FB), Color(0x557C4DFF)))
+                        )
+                        .clickable(
+                            enabled = name.isNotBlank() && email.isNotBlank() && password.isNotBlank() && password.length >= 6
+                        ) {
+                            isLoading = true
+                            errorMessage = null
+                            scope.launch {
+                                try {
+                                    val result = authManager.signUpWithEmail(email, password, name)
+                                    if (result.user != null) onSignUpSuccess()
+                                    else errorMessage = "Email sign up failed"
+                                } catch (e: Exception) {
+                                    errorMessage = e.localizedMessage ?: "An error occurred"
+                                } finally { isLoading = false }
                             }
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    enabled = name.isNotBlank() && email.isNotBlank() && password.isNotBlank() && password.length >= 6
+                        .padding(vertical = 16.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Sign Up with Email")
+                    Text("Sign Up with Email", color = Color.White, fontWeight = FontWeight.Bold)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "OR",
+                    text = "── OR ──",
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color(0xFF6B7494),
                     modifier = Modifier.padding(vertical = 8.dp)
                 )
 
@@ -517,14 +652,14 @@ fun SignUpScreen(
 
             val annotatedString = buildAnnotatedString {
                 append("Already have an account? ")
-                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)) {
+                withStyle(style = SpanStyle(color = Color(0xFFE040FB), fontWeight = FontWeight.Bold)) {
                     append("Sign In")
                 }
             }
             Text(
                 text = annotatedString,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color(0xFFB0B8D8),
                 modifier = Modifier.clickable { onNavigateToLogin() },
                 textAlign = TextAlign.Center,
                 maxLines = 1,

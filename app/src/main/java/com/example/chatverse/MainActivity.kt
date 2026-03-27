@@ -22,6 +22,7 @@ import com.example.chatverse.screens.ProfileScreen
 import com.example.chatverse.screens.SignUpScreen
 import com.example.chatverse.screens.WelcomeScreen
 import com.example.chatverse.ui.theme.ChatVerseTheme
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,10 +56,14 @@ private sealed class Route(val path: String) {
 @Composable
 fun ChatApp() {
     val nav = rememberNavController()
+    
+    // Check if user is already logged in
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val startDestination = if (currentUser != null) Route.Inbox.path else Route.Welcome.path
 
     NavHost(
         navController = nav,
-        startDestination = Route.Welcome.path
+        startDestination = startDestination
     ) {
         composable(Route.Welcome.path) {
             WelcomeScreen(
@@ -69,7 +74,8 @@ fun ChatApp() {
             LoginScreen(
                 onLoginSuccess = {
                     nav.navigate(Route.Inbox.path) {
-                        popUpTo(Route.Welcome.path) { inclusive = true }
+                        // Clear backstack so user can't go back to login
+                        popUpTo(0) { inclusive = true }
                     }
                 },
                 onNavigateToSignUp = {
@@ -81,7 +87,8 @@ fun ChatApp() {
             SignUpScreen(
                 onSignUpSuccess = {
                     nav.navigate(Route.Inbox.path) {
-                        popUpTo(Route.Welcome.path) { inclusive = true }
+                        // Clear backstack so user can't go back to signup
+                        popUpTo(0) { inclusive = true }
                     }
                 },
                 onNavigateToLogin = {
@@ -100,6 +107,7 @@ fun ChatApp() {
                 onBack = { nav.popBackStack() },
                 onLogout = {
                     nav.navigate(Route.Login.path) {
+                        // Clear backstack on logout
                         popUpTo(0) { inclusive = true }
                     }
                 }
